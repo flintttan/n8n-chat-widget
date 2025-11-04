@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N8N Chat Widget - 配置生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* 固定导航栏 */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 56px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo {
+            width: 32px;
+            height: 32px;
+            background: #031c24;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(3, 28, 36, 0.3);
+        }
+
+        .nav-brand h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #031c24;
+            letter-spacing: -0.01em;
+        }
+
+        .version {
+            font-size: 11px;
+            color: #fc296b;
+            background: #edf0f0;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            border: 1px solid #e88c73;
+        }
+
+        /* 锚点导航 */
+        .nav-anchors {
+            display: flex;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 8px;
+        }
+
+        .nav-anchor {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-anchor:hover {
+            background: rgba(252, 41, 107, 0.1);
+            color: #fc296b;
+        }
+
+        .nav-anchor.active {
+            background: #fc296b;
+            color: white;
+            box-shadow: 0 2px 6px rgba(252, 41, 107, 0.3);
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            max-width: 1600px;
+            margin: 56px auto 0;
+            padding: 32px 24px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            scroll-margin-top: 80px;
+        }
+
+        /* Hero区域 - 紧凑版 */
+        .hero-section {
+            text-align: center;
+            padding: 20px 20px;
+            background: #031c24;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 12px 32px rgba(3, 28, 36, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 28px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+
+        /* 特性网格 - 紧凑版 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .feature-card {
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #fc296b;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 8px 20px rgba(252, 41, 107, 0.12);
+            transform: translateY(-4px);
+            border-color: #e88c73;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon-wrapper {
+            width: 52px;
+            height: 52px;
+            background: #f8fafc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(232, 140, 115, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 26px;
+        }
+
+        .feature-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* 配置生成器 - 优化布局 */
+        .config-container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .config-panel, .output-panel {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 76px;
+        }
+
+        .config-panel {
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* 隐藏配置面板滚动条 */
+        .config-panel::-webkit-scrollbar {
+            width: 0;
+            display: none;
+        }
+
+        .config-panel {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #031c24;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .panel-header h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .panel-header .subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .panel-toolbar {
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .toolbar-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        .toolbar-btn.primary {
+            background: #fc296b;
+            color: white;
+            border-color: transparent;
+        }
+
+        .toolbar-btn.primary:hover {
+            box-shadow: 0 2px 10px rgba(252, 41, 107, 0.4);
+        }
+
+        /* 配置区块 */
+        .config-section {
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f8fafc;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background: #f1f5f9;
+        }
+
+        .section-title-small {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-toggle {
+            color: #fc296b;
+            font-size: 14px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .section-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 16px;
+            display: block;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        label .required {
+            color: #dc2626;
+        }
+
+        label .hint {
+            color: #94a3b8;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #fc296b;
+            box-shadow: 0 0 0 3px rgba(252, 41, 107, 0.1);
+        }
+
+        input:hover, select:hover {
+            border-color: #94a3b8;
+        }
+
+        input[type="color"] {
+            width: 56px;
+            height: 36px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .color-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .color-group input[type="text"] {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #fc296b;
+        }
+
+        /* 代码输出 */
+        .code-tabs {
+            display: flex;
+            gap: 0;
+            background: #f8fafc;
+            padding: 8px 12px;
+        }
+
+        .code-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .code-tab:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .code-tab.active {
+            color: #fc296b;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .code-tab-content {
+            display: none;
+            padding: 16px;
+        }
+
+        .code-tab-content.active {
+            display: block;
+        }
+
+        .code-output {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-x: auto;
+            position: relative;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #fc296b;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .copy-btn:hover {
+            background: #e88c73;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(252, 41, 107, 0.4);
+        }
+
+        /* 预览 */
+        .preview-frame-container {
+            background: #f8fafc;
+            border-radius: 8px;
+            min-height: 500px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .preview-mode-selector {
+            display: flex;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 6px;
+        }
+
+        .preview-mode-btn {
+            padding: 5px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+
+        .preview-mode-btn.active {
+            background: white;
+            color: #fc296b;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-action-btn {
+            padding: 5px 10px;
+            background: white;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preview-action-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            background: white;
+        }
+
+        /* 文档区域 */
+        .docs-container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .doc-content {
+            color: #334155;
+            line-height: 1.7;
+        }
+
+        .doc-content h3 {
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 800;
+            margin-top: 28px;
+            margin-bottom: 16px;
+        }
+
+        .doc-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .doc-content h4 {
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .doc-content code {
+            background: #edf0f0;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            color: #fc296b;
+            border: 1px solid #e88c73;
+        }
+
+        .example-box {
+            background: #edf0f0;
+            border-left: 3px solid #fc296b;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 5px;
+        }
+
+        .example-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f8fafc;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        .param-table th,
+        .param-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .param-table th {
+            background: #031c24;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .param-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .param-name {
+            font-family: 'Monaco', 'Consolas', monospace;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .param-required {
+            color: #dc2626;
+            font-size: 11px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .config-container {
+                grid-template-columns: 1fr;
+            }
+
+            .config-panel, .output-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                height: auto;
+                padding: 12px 16px;
+                gap: 12px;
+            }
+
+            .nav-anchors {
+                width: 100%;
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
+            .hero-section {
+                padding: 40px 16px;
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 帮助按钮 */
+        .help-icon-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            display: inline-flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .help-icon-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #031c24;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h3 {
+            color: white;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            background: #fc296b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(252, 41, 107, 0.3);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .step-content p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .json-template {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .json-header {
+            background: #031c24;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .json-header span {
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .copy-template-btn {
+            background: #fc296b;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-template-btn:hover {
+            background: #e88c73;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(252, 41, 107, 0.4);
+        }
+
+        .json-template pre {
+            padding: 12px;
+            margin: 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 9px;
+            line-height: 1.3;
+            color: #334155;
+            max-height: 120px;
+            overflow-y: auto;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .guide-note {
+            background: #edf0f0;
+            border-left: 3px solid #fc296b;
+            padding: 14px 16px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .guide-note strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .guide-note {
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 固定导航栏 -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-brand">
+                <div class="nav-logo">💬</div>
+                <h1>N8N Chat Widget</h1>
+                <span class="version">v1.0.0</span>
+            </div>
+            <div class="nav-anchors">
+                <a href="#home" class="nav-anchor active">首页</a>
+                <a href="#config" class="nav-anchor">配置器</a>
+                <a href="#docs" class="nav-anchor">文档</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 首页 Hero -->
+        <section id="home" class="section">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h2 class="hero-title">强大的可嵌入式聊天组件</h2>
+                    <p class="hero-description">为你的网站添加AI对话能力,支持流式响应、文件上传、Markdown渲染等功能</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 配置生成器 -->
+        <section id="config" class="section">
+            <div class="config-container">
+                <div class="config-panel">
+                    <div class="panel-header">
+                        <h2>配置生成器</h2>
+                        <p class="subtitle">自定义你的聊天组件</p>
+                    </div>
+
+                    <div class="panel-body">
+                        <form id="configForm">
+                            <!-- 基础配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>⚙️</span>
+                                        <span>基础配置</span>
+                                    </div>
+                                    <span class="section-toggle">▼</span>
+                                </div>
+                                <div class="section-content">
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <span>Webhook URL <span class="required">*</span></span>
+                                            <button type="button" class="help-icon-btn" onclick="openWebhookGuide()" title="如何创建n8n webhook">
+                                                <span style="font-size: 14px;">ℹ️</span>
+                                            </button>
+                                            <span class="hint" style="margin-left: auto;">你的n8n webhook地址</span>
+                                        </label>
+                                        <input type="url" id="webhookUrl" placeholder="http://your-n8n-webhook-url" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 文案配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>📝</span>
+                                        <span>文案配置</span>
+                                    </div>
+                                    <span class="section-toggle">▼</span>
+                                </div>
+                                <div class="section-content collapsed">
+                                    <div class="form-group">
+                                        <label>标题</label>
+                                        <input type="text" id="title" value="AI助手">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>副标题</label>
+                                        <input type="text" id="description" value="智能问答">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>输入框占位文本</label>
+                                        <input type="text" id="placeholder" value="请输入您的问题...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>空状态标题</label>
+                                        <input type="text" id="emptyStateTitle" value="开始对话">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>空状态描述</label>
+                                        <input type="text" id="emptyStateDescription" value="我可以帮助您解答问题">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>发送按钮文本</label>
+                                        <input type="text" id="sendButtonText" value="发送">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>新对话按钮文本</label>
+                                        <input type="text" id="newChatButtonText" value="新对话">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 颜色配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>🎨</span>
+                                        <span>颜色配置</span>
+                                    </div>
+                                    <span class="section-toggle collapsed">▼</span>
+                                </div>
+                                <div class="section-content collapsed">
+                                    <div class="form-group">
+                                        <label>主色调</label>
+                                        <div class="color-group">
+                                            <input type="color" id="primaryColorPicker" value="#0A1F2A">
+                                            <input type="text" id="primaryColor" value="#0A1F2A">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>主色调(浅色)</label>
+                                        <div class="color-group">
+                                            <input type="color" id="primaryColorLightPicker" value="#1A3A44">
+                                            <input type="text" id="primaryColorLight" value="#1A3A44">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>强调色</label>
+                                        <div class="color-group">
+                                            <input type="color" id="accentColorPicker" value="#FF7557">
+                                            <input type="text" id="accentColor" value="#FF7557">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>高亮色</label>
+                                        <div class="color-group">
+                                            <input type="color" id="highlightColorPicker" value="#FF1D5E">
+                                            <input type="text" id="highlightColor" value="#FF1D5E">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>背景色</label>
+                                        <div class="color-group">
+                                            <input type="color" id="backgroundColorPicker" value="#F8FAFA">
+                                            <input type="text" id="backgroundColor" value="#F8FAFA">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 布局配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>📐</span>
+                                        <span>布局配置</span>
+                                    </div>
+                                    <span class="section-toggle collapsed">▼</span>
+                                </div>
+                                <div class="section-content collapsed">
+                                    <div class="form-group">
+                                        <label>位置</label>
+                                        <select id="position">
+                                            <option value="bottom-right">右下角</option>
+                                            <option value="bottom-left">左下角</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>浮动按钮大小 (px)</label>
+                                        <input type="number" id="buttonSize" value="56" min="40" max="80">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>窗口宽度 (px)</label>
+                                        <input type="number" id="chatWidth" value="420" min="300" max="600">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>窗口高度 (px)</label>
+                                        <input type="number" id="chatHeight" value="600" min="400" max="800">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 功能配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>⚡</span>
+                                        <span>功能配置</span>
+                                    </div>
+                                    <span class="section-toggle collapsed">▼</span>
+                                </div>
+                                <div class="section-content collapsed">
+                                    <div class="form-group">
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" id="enableFileUpload" checked>
+                                            <label for="enableFileUpload">启用文件上传</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="fileUploadTypesGroup">
+                                        <label>文件上传类型</label>
+                                        <select id="fileUploadTypes">
+                                            <option value="image">仅图片</option>
+                                            <option value="pdf">仅PDF</option>
+                                            <option value="csv">仅CSV</option>
+                                            <option value="all">所有文件</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" id="enableHistory" checked>
+                                            <label for="enableHistory">启用历史记录</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="maxHistoryItemsGroup">
+                                        <label>最大历史记录数</label>
+                                        <input type="number" id="maxHistoryItems" value="50" min="10" max="200">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" id="enableResize" checked>
+                                            <label for="enableResize">启用窗口调整大小</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 高级配置 -->
+                            <div class="config-section">
+                                <div class="section-header" onclick="toggleSection(this)">
+                                    <div class="section-title-small">
+                                        <span>🔧</span>
+                                        <span>高级配置</span>
+                                    </div>
+                                    <span class="section-toggle collapsed">▼</span>
+                                </div>
+                                <div class="section-content collapsed">
+                                    <div class="form-group">
+                                        <label>按钮图标 <span class="hint">Emoji或文本</span></label>
+                                        <input type="text" id="buttonIcon" value="💬">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>关闭图标 <span class="hint">Emoji或文本</span></label>
+                                        <input type="text" id="closeIcon" value="✕">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>z-index</label>
+                                        <input type="number" id="zIndex" value="9999" min="1000" max="99999">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="panel-toolbar">
+                        <button class="toolbar-btn" onclick="resetConfig()">🔄 重置</button>
+                        <button class="toolbar-btn" onclick="importConfig()">📥 导入</button>
+                        <button class="toolbar-btn" onclick="exportConfig()">📤 导出</button>
+                        <button class="toolbar-btn" onclick="openPreviewWindow()">👁️ 预览</button>
+                    </div>
+                </div>
+
+                <div class="output-panel">
+                    <div class="panel-header">
+                        <h2>生成的代码</h2>
+                    </div>
+
+                    <div class="code-tabs">
+                        <button class="code-tab active" onclick="switchCodeTab('init')">初始化代码</button>
+                        <button class="code-tab" onclick="switchCodeTab('html')">完整HTML</button>
+                    </div>
+
+                    <div id="initCode" class="code-tab-content active">
+                        <div class="code-output">
+                            <button class="copy-btn" onclick="copyCode('init')">复制</button>
+                            <pre id="initCodeContent"></pre>
+                        </div>
+                    </div>
+
+                    <div id="htmlCode" class="code-tab-content">
+                        <div class="code-output">
+                            <button class="copy-btn" onclick="copyCode('html')">复制</button>
+                            <pre id="htmlCodeContent"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用文档 -->
+        <section id="docs" class="section">
+            <div class="docs-container">
+                <div class="doc-content">
+                    <h3>使用文档</h3>
+
+                    <div class="example-box">
+                        <div class="example-title">组件简介</div>
+                        <p>N8N Chat Widget 是一个可嵌入式的AI聊天组件,支持实时对话、文件上传、Markdown渲染等功能。</p>
+                    </div>
+
+                    <h3>快速开始</h3>
+
+                    <h4>1. 引入依赖库</h4>
+                    <div class="code-output" style="margin: 16px 0;">
+                        <button class="copy-btn" onclick="copyDocCode(this)">复制</button>
+                        <pre>&lt;script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"&gt;&lt;/script&gt;</pre>
+                    </div>
+
+                    <h4>2. 引入组件脚本</h4>
+                    <div class="code-output" style="margin: 16px 0;">
+                        <button class="copy-btn" onclick="copyDocCode(this)">复制</button>
+                        <pre>&lt;script src="https://cdn.jsdelivr.net/gh/flintttan/n8n-chat-widget@v1.0.0/n8n-chat-widget.js"&gt;&lt;/script&gt;</pre>
+                    </div>
+
+                    <h4>3. 初始化组件</h4>
+                    <div class="code-output" style="margin: 16px 0;">
+                        <button class="copy-btn" onclick="copyDocCode(this)">复制</button>
+                        <pre>&lt;script&gt;
+  N8NChatWidget.init({
+    webhookUrl: 'http://your-n8n-webhook-url',
+    title: 'AI助手',
+    description: '智能问答'
+  });
+&lt;/script&gt;</pre>
+                    </div>
+
+                    <h3>配置参数</h3>
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th>参数名称</th>
+                                <th>类型</th>
+                                <th>必填</th>
+                                <th>默认值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">基础配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">webhookUrl</span></td>
+                                <td>string</td>
+                                <td><span class="param-required">是</span></td>
+                                <td>-</td>
+                                <td>N8N webhook 地址</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">文案配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">title</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'AI助手'</td>
+                                <td>聊天窗口标题</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">description</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'智能问答'</td>
+                                <td>聊天窗口副标题</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">placeholder</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'请输入您的问题...'</td>
+                                <td>输入框占位文本</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">emptyStateTitle</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'开始对话'</td>
+                                <td>空状态标题</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">emptyStateDescription</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'我可以帮助您解答问题'</td>
+                                <td>空状态描述</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">sendButtonText</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'发送'</td>
+                                <td>发送按钮文本</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">newChatButtonText</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'新对话'</td>
+                                <td>新对话按钮文本</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">颜色配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">primaryColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#0A1F2A'</td>
+                                <td>主色调(深蓝)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">primaryColorLight</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#1A3A44'</td>
+                                <td>主色调(浅色)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">accentColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#FF7557'</td>
+                                <td>强调色(橙红)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">backgroundColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#F8FAFA'</td>
+                                <td>背景色</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">surfaceColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#FFFFFF'</td>
+                                <td>表面颜色(消息框背景)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">highlightColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#FF1D5E'</td>
+                                <td>高亮色(浮动按钮背景)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">textColor</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#111827'</td>
+                                <td>主文本颜色</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">textColorLight</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#374151'</td>
+                                <td>次要文本颜色</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">textColorMuted</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'#6B7280'</td>
+                                <td>柔和文本颜色</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">布局配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">position</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'bottom-right'</td>
+                                <td>位置: 'bottom-right' | 'bottom-left'</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">buttonSize</span></td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>56</td>
+                                <td>浮动按钮大小(px)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">chatWidth</span></td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>420</td>
+                                <td>聊天窗口宽度(px)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">chatHeight</span></td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>600</td>
+                                <td>聊天窗口高度(px)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">功能配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">enableFileUpload</span></td>
+                                <td>boolean</td>
+                                <td>否</td>
+                                <td>true</td>
+                                <td>是否允许上传文件</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">fileUploadTypes</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'image'</td>
+                                <td>文件上传类型: 'image' | 'pdf' | 'csv' | 'all' 或自定义MIME类型</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">enableHistory</span></td>
+                                <td>boolean</td>
+                                <td>否</td>
+                                <td>true</td>
+                                <td>是否启用历史记录</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">maxHistoryItems</span></td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>50</td>
+                                <td>最大历史记录数</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">enableResize</span></td>
+                                <td>boolean</td>
+                                <td>否</td>
+                                <td>true</td>
+                                <td>是否启用窗口调整大小</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background: #f1f5f9; font-weight: 700;">高级配置</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">customHeaders</span></td>
+                                <td>object</td>
+                                <td>否</td>
+                                <td>{}</td>
+                                <td>自定义HTTP请求头,例如: { 'X-Custom-Token': 'abc123' }</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">buttonIcon</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'💬'</td>
+                                <td>浮动按钮图标(Emoji或文本)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">closeIcon</span></td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>'✕'</td>
+                                <td>关闭按钮图标</td>
+                            </tr>
+                            <tr>
+                                <td><span class="param-name">zIndex</span></td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>9999</td>
+                                <td>组件层级</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>特性说明</h3>
+                    <ul style="list-style-position: inside; color: #334155;">
+                        <li style="margin: 10px 0;"><strong>流式响应</strong>: 支持实时显示AI响应内容</li>
+                        <li style="margin: 10px 0;"><strong>Markdown渲染</strong>: 自动渲染消息中的Markdown格式</li>
+                        <li style="margin: 10px 0;"><strong>文件上传</strong>: 支持图片等文件上传功能</li>
+                        <li style="margin: 10px 0;"><strong>历史记录</strong>: 自动保存对话历史,支持切换查看</li>
+                        <li style="margin: 10px 0;"><strong>响应式设计</strong>: 自适应移动端和桌面端</li>
+                        <li style="margin: 10px 0;"><strong>主题定制</strong>: 支持自定义颜色主题</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Webhook 创建指南弹窗 -->
+    <div id="webhookGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>如何创建 N8N Webhook 聊天机器人</h3>
+                <button class="modal-close" onclick="closeWebhookGuide()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="guide-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>登录 N8N 控制台</h4>
+                            <p>访问你的 N8N 实例并登录</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>创建新工作流</h4>
+                            <p>点击 "新建工作流" 按钮</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>导入 JSON 模板</h4>
+                            <p>点击右上角的 "..." 菜单,选择 "导入工作流" → "从剪贴板导入"</p>
+                            <div class="json-template">
+                                <div class="json-header">
+                                    <span>JSON 模板</span>
+                                    <button class="copy-template-btn" onclick="copyTemplate()">📋 复制模板</button>
+                                </div>
+                                <pre id="webhookTemplate">{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "streaming",
+        "options": {
+          "allowedOrigins": "*",
+          "binaryPropertyName": "data",
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-224, -112],
+      "id": "7b6f95fe-e54a-460a-99d8-904e55290711",
+      "name": "Webhook",
+      "webhookId": "chat-webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "你是一个AI 助手。",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [0, -112],
+      "id": "83098af8-685d-4116-96b1-fe407586586a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [8, 112],
+      "id": "26ab2518-889f-4614-9f0c-04b656113483",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MF53UMpXjMUbaOey",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [136, 112],
+      "id": "362100c2-f454-4e75-96cd-6f7b9debcf9c",
+      "name": "Local Memory"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Local Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5a6beb7c7495db51b0dd094117f3ac23ed68722116c9774365d61ff108ee2ed4"
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>配置 OpenAI 凭证</h4>
+                            <p>在 "OpenAI Chat Model" 节点中配置你的 OpenAI API 密钥</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>激活工作流</h4>
+                            <p>点击右上角的开关,激活工作流</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h4>获取 Webhook URL</h4>
+                            <p>点击 "Webhook" 节点,复制 "Production URL" 地址,粘贴到上方的输入框中</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-note">
+                    <strong>💡 提示:</strong> 确保在 Webhook 节点中设置了 "允许的来源" 为 "*" 或你的网站域名,以允许跨域请求。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 锚点导航高亮
+        const navAnchors = document.querySelectorAll('.nav-anchor');
+        const sections = document.querySelectorAll('.section');
+
+        function updateActiveAnchor() {
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.pageYOffset >= sectionTop) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navAnchors.forEach(anchor => {
+                anchor.classList.remove('active');
+                if (anchor.getAttribute('href') === '#' + currentSection) {
+                    anchor.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveAnchor);
+
+        // 颜色同步
+        function syncColor(pickerId, textId) {
+            const picker = document.getElementById(pickerId);
+            const text = document.getElementById(textId);
+
+            picker.addEventListener('input', (e) => {
+                text.value = e.target.value.toUpperCase();
+                generateCode();
+            });
+
+            text.addEventListener('input', (e) => {
+                const value = e.target.value;
+                if (/^#[0-9A-F]{6}$/i.test(value)) {
+                    picker.value = value;
+                }
+                generateCode();
+            });
+        }
+
+        syncColor('primaryColorPicker', 'primaryColor');
+        syncColor('primaryColorLightPicker', 'primaryColorLight');
+        syncColor('accentColorPicker', 'accentColor');
+        syncColor('highlightColorPicker', 'highlightColor');
+        syncColor('backgroundColorPicker', 'backgroundColor');
+
+        // 监听表单变化
+        document.getElementById('configForm').addEventListener('input', generateCode);
+        document.getElementById('configForm').addEventListener('change', generateCode);
+
+        // checkbox联动
+        document.getElementById('enableFileUpload').addEventListener('change', function() {
+            document.getElementById('fileUploadTypesGroup').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('enableHistory').addEventListener('change', function() {
+            document.getElementById('maxHistoryItemsGroup').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // 生成代码
+        function generateCode() {
+            const config = {
+                webhookUrl: document.getElementById('webhookUrl').value,
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                placeholder: document.getElementById('placeholder').value,
+                emptyStateTitle: document.getElementById('emptyStateTitle').value,
+                emptyStateDescription: document.getElementById('emptyStateDescription').value,
+                sendButtonText: document.getElementById('sendButtonText').value,
+                newChatButtonText: document.getElementById('newChatButtonText').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                primaryColorLight: document.getElementById('primaryColorLight').value,
+                accentColor: document.getElementById('accentColor').value,
+                highlightColor: document.getElementById('highlightColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                position: document.getElementById('position').value,
+                buttonSize: parseInt(document.getElementById('buttonSize').value),
+                chatWidth: parseInt(document.getElementById('chatWidth').value),
+                chatHeight: parseInt(document.getElementById('chatHeight').value),
+                enableFileUpload: document.getElementById('enableFileUpload').checked,
+                fileUploadTypes: document.getElementById('fileUploadTypes').value,
+                enableHistory: document.getElementById('enableHistory').checked,
+                maxHistoryItems: parseInt(document.getElementById('maxHistoryItems').value),
+                enableResize: document.getElementById('enableResize').checked,
+                buttonIcon: document.getElementById('buttonIcon').value,
+                closeIcon: document.getElementById('closeIcon').value,
+                zIndex: parseInt(document.getElementById('zIndex').value)
+            };
+
+            const configStr = Object.entries(config)
+                .map(([key, value]) => {
+                    if (typeof value === 'string') {
+                        return `    ${key}: '${value}'`;
+                    }
+                    return `    ${key}: ${value}`;
+                })
+                .join(',\n');
+
+            const initCode = `<script>
+  N8NChatWidget.init({
+${configStr}
+  });
+<\/script>`;
+
+            const htmlCode = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的网站 - ${config.title}</title>
+</head>
+<body>
+    <h1>欢迎来到我的网站</h1>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/gh/flintttan/n8n-chat-widget@v1.0.0/n8n-chat-widget.js"><\/script>
+
+    <script>
+      N8NChatWidget.init({
+${configStr}
+      });
+    <\/script>
+</body>
+</html>`;
+
+            document.getElementById('initCodeContent').textContent = initCode;
+            document.getElementById('htmlCodeContent').textContent = htmlCode;
+
+            updatePreview(config);
+            localStorage.setItem('n8n_widget_config', JSON.stringify(config));
+        }
+
+        // 更新预览
+        function updatePreview(config) {
+            const previewFrame = document.getElementById('previewFrame');
+            if (!previewFrame) return;
+
+            const previewHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预览</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .preview-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #0f172a;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        p { color: #64748b; margin: 10px 0; font-size: 14px; }
+        .hint { font-size: 13px; color: #94a3b8; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="preview-card">
+        <h1>实时预览</h1>
+        <p>这是组件的实时预览效果</p>
+        <p class="hint">点击右下角的聊天按钮查看完整功能</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/gh/flintttan/n8n-chat-widget@v1.0.0/n8n-chat-widget.js"><\/script>
+    <script>
+        N8NChatWidget.init(${JSON.stringify(config)});
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([previewHtml], { type: 'text/html' });
+            previewFrame.src = URL.createObjectURL(blob);
+        }
+
+        // 切换代码标签
+        function switchCodeTab(tabName) {
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.code-tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Code').classList.add('active');
+
+            if (tabName === 'preview') {
+                generateCode();
+            }
+        }
+
+        // 复制代码
+        function copyCode(type) {
+            const content = type === 'init'
+                ? document.getElementById('initCodeContent').textContent
+                : document.getElementById('htmlCodeContent').textContent;
+
+            navigator.clipboard.writeText(content).then(() => {
+                showNotification('✅ 已复制');
+            });
+        }
+
+        function copyDocCode(button) {
+            const pre = button.parentElement.querySelector('pre');
+            if (pre) {
+                navigator.clipboard.writeText(pre.textContent).then(() => {
+                    showNotification('✅ 已复制');
+                });
+            }
+        }
+
+        // 通知
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 24px;
+                background: #031c24;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(3, 28, 36, 0.3);
+                z-index: 10000;
+                font-weight: 700;
+                font-size: 13px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // 预览窗口
+        function openPreviewWindow() {
+            const config = localStorage.getItem('n8n_widget_config');
+            if (!config) {
+                alert('请先配置组件');
+                return;
+            }
+
+            const configObj = JSON.parse(config);
+            if (!configObj.webhookUrl) {
+                alert('请先填写Webhook URL');
+                return;
+            }
+
+            const preview = window.open('', 'preview', 'width=800,height=600');
+            preview.document.write(`<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>预览</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .preview-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        h1 { color: #0f172a; margin-bottom: 10px; font-weight: 800; }
+        p { color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="preview-card">
+        <h1>预览模式</h1>
+        <p>点击右下角的聊天按钮</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/gh/flintttan/n8n-chat-widget@v1.0.0/n8n-chat-widget.js"><\/script>
+    <script>N8NChatWidget.init(${config});<\/script>
+</body>
+</html>`);
+            preview.document.close();
+        }
+
+        // 配置操作
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const toggle = header.querySelector('.section-toggle');
+            content.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        function setPreviewMode(mode) {
+            const iframe = document.getElementById('previewFrame');
+            const buttons = document.querySelectorAll('.preview-mode-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            iframe.style.width = mode === 'mobile' ? '375px' : mode === 'tablet' ? '768px' : '100%';
+            iframe.style.height = mode === 'mobile' ? '667px' : '500px';
+            iframe.style.margin = mode !== 'desktop' ? '20px auto' : '0';
+            iframe.style.borderRadius = mode !== 'desktop' ? '12px' : '0';
+            iframe.style.boxShadow = mode !== 'desktop' ? '0 4px 12px rgba(0, 0, 0, 0.15)' : 'none';
+        }
+
+        function refreshPreview() {
+            generateCode();
+            showNotification('🔄 已刷新');
+        }
+
+        function resetConfig() {
+            if (!confirm('确定要重置?')) return;
+            document.getElementById('configForm').reset();
+            generateCode();
+            showNotification('✅ 已重置');
+        }
+
+        function exportConfig() {
+            const config = getCurrentConfig();
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'n8n-widget-config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('✅ 已导出');
+        }
+
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const config = JSON.parse(event.target.result);
+                        applyConfig(config);
+                        showNotification('✅ 已导入');
+                    } catch (error) {
+                        showNotification('❌ 格式错误');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function applyConfig(config) {
+            Object.keys(config).forEach(key => {
+                const element = document.getElementById(key);
+                if (!element) return;
+                if (element.type === 'checkbox') {
+                    element.checked = config[key];
+                } else {
+                    element.value = config[key];
+                    if (key.includes('Color') && !key.includes('Picker')) {
+                        const picker = document.getElementById(key + 'Picker');
+                        if (picker) picker.value = config[key];
+                    }
+                }
+            });
+            generateCode();
+        }
+
+        function getCurrentConfig() {
+            return {
+                webhookUrl: document.getElementById('webhookUrl').value,
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                placeholder: document.getElementById('placeholder').value,
+                emptyStateTitle: document.getElementById('emptyStateTitle').value,
+                emptyStateDescription: document.getElementById('emptyStateDescription').value,
+                sendButtonText: document.getElementById('sendButtonText').value,
+                newChatButtonText: document.getElementById('newChatButtonText').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                primaryColorLight: document.getElementById('primaryColorLight').value,
+                accentColor: document.getElementById('accentColor').value,
+                highlightColor: document.getElementById('highlightColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                position: document.getElementById('position').value,
+                buttonSize: parseInt(document.getElementById('buttonSize').value),
+                chatWidth: parseInt(document.getElementById('chatWidth').value),
+                chatHeight: parseInt(document.getElementById('chatHeight').value),
+                enableFileUpload: document.getElementById('enableFileUpload').checked,
+                fileUploadTypes: document.getElementById('fileUploadTypes').value,
+                enableHistory: document.getElementById('enableHistory').checked,
+                maxHistoryItems: parseInt(document.getElementById('maxHistoryItems').value),
+                enableResize: document.getElementById('enableResize').checked,
+                buttonIcon: document.getElementById('buttonIcon').value,
+                closeIcon: document.getElementById('closeIcon').value,
+                zIndex: parseInt(document.getElementById('zIndex').value)
+            };
+        }
+
+
+        // 页面加载时生成初始代码
+        generateCode();
+
+        // Webhook 指南弹窗函数
+        function openWebhookGuide() {
+            document.getElementById('webhookGuideModal').classList.add('active');
+        }
+
+        function closeWebhookGuide() {
+            document.getElementById('webhookGuideModal').classList.remove('active');
+        }
+
+        function copyTemplate() {
+            const template = document.getElementById('webhookTemplate').textContent;
+            navigator.clipboard.writeText(template).then(() => {
+                showNotification('✅ 模板已复制');
+            }).catch(() => {
+                showNotification('❌ 复制失败');
+            });
+        }
+
+        // 点击弹窗外部关闭
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('webhookGuideModal');
+            if (event.target === modal) {
+                closeWebhookGuide();
+            }
+        });
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeWebhookGuide();
+            }
+        });
+    </script>
+</body>
+</html>
