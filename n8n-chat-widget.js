@@ -301,6 +301,7 @@
                 width: 100%;
                 display: flex;
                 flex-direction: column;
+                box-sizing: border-box;
 
                 /* 隐藏滚动条但保留滚动功能 - Firefox */
                 scrollbar-width: none;
@@ -315,15 +316,12 @@
                 height: 0;
             }
 
-            /* 当有消息时,改为正常流式布局 */
-            .n8n-chat-messages:not(:has(.n8n-chat-empty)) {
-                display: block;
-            }
-
             /* 兼容方案：通过JS切换状态类，避免 :has 选择器在少数环境中的兼容性问题 */
-            .n8n-chat-messages.has-messages { display: block; }
+            .n8n-chat-messages.has-messages {
+                justify-content: flex-start;
+                align-items: stretch;
+            }
             .n8n-chat-messages.is-empty {
-                display: flex;
                 justify-content: center;
                 align-items: center;
                 overflow-y: hidden; /* 空状态不显示滚动条，内容垂直居中 */
@@ -559,6 +557,7 @@
                 border-top: 1px solid #E5E7EB;
                 padding: 16px;
                 background: white;
+                overflow: visible;
             }
 
             .n8n-chat-input-wrapper {
@@ -574,7 +573,7 @@
 
             .n8n-chat-input-wrapper:focus-within {
                 border-color: var(--n8n-chat-accent);
-                box-shadow: 0 0 0 3px rgba(255, 117, 87, 0.1);
+                box-shadow: inset 0 0 0 1px var(--n8n-chat-accent), 0 0 0 3px rgba(255, 117, 87, 0.1);
                 background: white;
             }
 
